@@ -1,0 +1,8 @@
+{
+  "name": "arcade",
+  "private": true,
+  "description": "Four little browser games. Open index.html to play.",
+  "scripts": {
+    "test": "node tests/logic.test.js"
+  }
+}
