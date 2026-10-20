@@ -125,12 +125,21 @@
   }
 
   // ---------- Drawing ----------
-  function draw(ctx, game) {
-    var height = tower.length;
-    var bg = ctx.createLinearGradient(0, 0, 0, H);
+  // The background colour fade only changes when a block lands, so keep it until then
+  var bg = null, bgKey = '';
+  function background(ctx, height) {
+    var key = hue0 + ',' + height;
+    if (bg && key === bgKey) return bg;
+    bgKey = key;
+    bg = ctx.createLinearGradient(0, 0, 0, H);
     bg.addColorStop(0, 'hsl(' + ((hue0 + height * 9 + 200) % 360) + ', 45%, 20%)');
     bg.addColorStop(1, 'hsl(' + ((hue0 + height * 9 + 240) % 360) + ', 45%, 32%)');
-    ctx.fillStyle = bg;
+    return bg;
+  }
+
+  function draw(ctx, game) {
+    var height = tower.length;
+    ctx.fillStyle = background(ctx, height);
     ctx.fillRect(0, 0, W, H);
 
     // Big faint score behind the tower

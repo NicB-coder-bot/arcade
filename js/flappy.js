@@ -125,10 +125,21 @@
   }
 
   // ---------- Drawing ----------
-  function draw(ctx, game) {
-    var sky = ctx.createLinearGradient(0, 0, 0, GROUND);
+  // The sky and pipe colour fades never change, so build them once and reuse them
+  var sky = null, pipeFade = null;
+  function makeFades(ctx) {
+    sky = ctx.createLinearGradient(0, 0, 0, GROUND);
     sky.addColorStop(0, '#4fc0ef');
     sky.addColorStop(1, '#c4f1ff');
+    // Built at x = 0; each pipe shifts the drawing over to its own spot
+    pipeFade = ctx.createLinearGradient(0, 0, PIPE_W, 0);
+    pipeFade.addColorStop(0, '#43c25e');
+    pipeFade.addColorStop(0.5, '#6fe08a');
+    pipeFade.addColorStop(1, '#2e9e48');
+  }
+
+  function draw(ctx, game) {
+    if (!sky) makeFades(ctx);
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, W, H);
 
@@ -177,13 +188,12 @@
 
   function drawPipe(ctx, p) {
     var topH = p.gapY - GAP / 2, botY = p.gapY + GAP / 2;
-    var grad = ctx.createLinearGradient(p.x, 0, p.x + PIPE_W, 0);
-    grad.addColorStop(0, '#43c25e');
-    grad.addColorStop(0.5, '#6fe08a');
-    grad.addColorStop(1, '#2e9e48');
-    ctx.fillStyle = grad;
-    ctx.fillRect(p.x, 0, PIPE_W, topH);
-    ctx.fillRect(p.x, botY, PIPE_W, GROUND - botY);
+    ctx.save();
+    ctx.translate(p.x, 0);
+    ctx.fillStyle = pipeFade;
+    ctx.fillRect(0, 0, PIPE_W, topH);
+    ctx.fillRect(0, botY, PIPE_W, GROUND - botY);
+    ctx.restore();
     // Lips
     ctx.fillStyle = '#2a9444';
     roundRect(ctx, p.x - 5, topH - 22, PIPE_W + 10, 22, 6); ctx.fill();

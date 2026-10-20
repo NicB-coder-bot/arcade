@@ -356,7 +356,8 @@
       } else if (options.idle) {
         options.idle(dt, game, state);
       }
-      draw();
+      // While paused nothing moves, so skip redrawing (saves battery on phones)
+      if (state !== 'paused') draw();
       requestAnimationFrame(frameLoop);
     }
 

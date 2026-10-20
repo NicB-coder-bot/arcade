@@ -128,14 +128,31 @@
   function onPointerUp() { swipeStart = null; }
 
   // ---------- Drawing ----------
-  function draw(ctx, game) {
-    // Board
-    ctx.fillStyle = '#13301f';
-    ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#17391f';
-    for (var y = 0; y < ROWS; y++) {
-      for (var x = (y % 2); x < COLS; x += 2) ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+  // The checkerboard never changes, so draw it once onto a hidden canvas
+  // (at the real screen size, so it stays sharp) and copy it every frame
+  var board = document.createElement('canvas');
+  function drawBoard(ctx) {
+    var real = ctx.canvas;
+    if (board.width !== real.width || board.height !== real.height) {
+      board.width = real.width;
+      board.height = real.height;
+      var b = board.getContext('2d');
+      b.setTransform(ctx.getTransform());
+      b.fillStyle = '#13301f';
+      b.fillRect(0, 0, W, H);
+      b.fillStyle = '#17391f';
+      for (var y = 0; y < ROWS; y++) {
+        for (var x = (y % 2); x < COLS; x += 2) b.fillRect(x * CELL, y * CELL, CELL, CELL);
+      }
     }
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(board, 0, 0);
+    ctx.restore();
+  }
+
+  function draw(ctx, game) {
+    drawBoard(ctx);
 
     // Smooth movement: slide between the last cell and the next
     var t = game.state === 'playing' ? Math.min(timer / logic.stepTime(eaten, game.time), 1) : 1;
