@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0e1124">
+  <title>Stack · Arcade</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="game-page game-stack">
+  <header class="topbar">
+    <a class="btn btn-ghost btn-small" href="index.html" aria-label="Back to arcade">&larr; <span class="back-label">Back to arcade</span></a>
+    <h1>Stack</h1>
+    <div class="spacer"></div>
+    <div class="stats">
+      <div class="stat"><span>Score</span><b id="score">0</b></div>
+      <div class="stat"><span>Best</span><b id="best">0</b></div>
+    </div>
+    <button class="icon-btn" id="pauseBtn" type="button" aria-label="Pause"></button>
+    <button class="icon-btn" id="soundBtn" type="button" aria-label="Sound"></button>
+  </header>
+
+  <main class="stage" id="stage">
+    <div class="frame" id="frame">
+      <canvas id="game" aria-label="Stack game"></canvas>
+
+      <div class="overlay" id="startScreen">
+        <h2>Stack</h2>
+        <p>Drop each sliding block on the tower. Anything hanging over the edge gets cut off. How high can you go?</p>
+        <p class="how only-mouse">Press <b>Space</b> or click to drop the block.</p>
+        <p class="how only-touch">Tap the screen to drop the block.</p>
+        <div class="overlay-buttons">
+          <button class="btn" id="playBtn" type="button">Play</button>
+        </div>
+      </div>
+
+      <div class="overlay" id="pauseScreen" hidden>
+        <h2>Paused</h2>
+        <p class="how">Take a break. Your game is waiting.</p>
+        <div class="overlay-buttons">
+          <button class="btn" id="resumeBtn" type="button">Resume</button>
+          <a class="btn btn-ghost" href="index.html">Back to arcade</a>
+        </div>
+      </div>
+
+      <div class="overlay late" id="overScreen" hidden>
+        <h2>Game over</h2>
+        <div class="score-label">Score</div>
+        <div class="big-score" id="finalScore">0</div>
+        <div class="badge" id="newBest" hidden>New best!</div>
+        <p class="how" id="finalBest">Best: 0</p>
+        <div class="overlay-buttons">
+          <button class="btn" id="againBtn" type="button">Play again</button>
+          <a class="btn btn-ghost" href="index.html">Back to arcade</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/stack.js"></script>
+</body>
+</html>
