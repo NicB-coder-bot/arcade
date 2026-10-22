@@ -190,6 +190,7 @@ a { color: inherit; }
 }
 
 .home-footer { margin-top: 34px; text-align: center; color: var(--muted); font-size: 14px; }
+.made-with { margin: 10px 0 0; text-align: center; color: var(--muted); font-size: 12px; opacity: .7; }
 
 /* ---------- Game pages ---------- */
 body.game-page {
