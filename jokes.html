@@ -7,7 +7,7 @@
   <title>Dad Jokes</title>
   <style>
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; }
+    body { margin: 0; }
     body {
       min-height: 100vh;
       min-height: 100dvh;
@@ -67,7 +67,7 @@
   <button id="btn" type="button">Tell me a joke</button>
 
   <script>
-    var JOKES = [
+    const JOKES = [
       "I'm afraid for the calendar. Its days are numbered.",
       "Why don't eggs tell jokes? They'd crack each other up.",
       "What do you call a fake noodle? An impasta!",
@@ -97,7 +97,7 @@
       "Why can't you give Elsa a balloon? Because she will let it go.",
       "What do you get when you cross a snowman and a vampire? Frostbite!",
       "Why did the banana go to the doctor? It wasn't peeling well.",
-      "What's a pirate's favorite letter? You'd think it's R, but it's the C!",
+      "What's a pirate's favorite letter? Arrr! But his true love is the C.",
       "How do you make a lemon drop? Let it fall out of the tree!",
       "Why did the football coach go to the bank? To get his quarter back.",
       "What did the janitor say when he jumped out of the closet? Supplies!",
@@ -105,12 +105,12 @@
       "What do you call a fish wearing a bowtie? Sofishticated."
     ];
 
-    var jokeEl = document.getElementById("joke");
-    var btn = document.getElementById("btn");
-    var last = -1;
+    const jokeEl = document.getElementById("joke");
+    const btn = document.getElementById("btn");
+    let last = -1;
 
     function nextJoke() {
-      var i;
+      let i;
       do {
         i = Math.floor(Math.random() * JOKES.length);
       } while (i === last);
