@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffd23f">
+  <title>Dad Jokes</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      padding: max(20px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom));
+      font-family: "Comic Sans MS", "Chalkboard SE", "Trebuchet MS", system-ui, sans-serif;
+      color: #2b1b5a;
+      text-align: center;
+      background: linear-gradient(160deg, #ffd23f 0%, #ff8fab 55%, #8ecbff 100%);
+      overflow-x: hidden;
+    }
+    h1 { margin: 0; font-size: clamp(2rem, 9vw, 3.4rem); text-shadow: 3px 3px 0 #fff; }
+    .joke {
+      width: 100%;
+      max-width: 640px;
+      min-height: 9em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: #fff;
+      border: 5px solid #2b1b5a;
+      border-radius: 28px;
+      box-shadow: 0 8px 0 #2b1b5a;
+      font-size: clamp(1.4rem, 6vw, 2rem);
+      line-height: 1.35;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    button {
+      width: 100%;
+      max-width: 640px;
+      min-height: 84px;
+      font: inherit;
+      font-size: clamp(1.5rem, 7vw, 2.2rem);
+      font-weight: 800;
+      color: #fff;
+      background: #7b3fe4;
+      border: 5px solid #2b1b5a;
+      border-radius: 999px;
+      box-shadow: 0 8px 0 #2b1b5a;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:active { transform: translateY(6px); box-shadow: 0 2px 0 #2b1b5a; }
+    button:focus-visible { outline: 4px solid #fff; outline-offset: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Dad Jokes 😄</h1>
+  <div class="joke" id="joke" aria-live="polite">Tap the button for a joke!</div>
+  <button id="btn" type="button">Tell me a joke</button>
+
+  <script>
+    var JOKES = [
+      "I'm afraid for the calendar. Its days are numbered.",
+      "Why don't eggs tell jokes? They'd crack each other up.",
+      "What do you call a fake noodle? An impasta!",
+      "Why did the scarecrow win an award? He was outstanding in his field.",
+      "I used to hate facial hair, but then it grew on me.",
+      "What do you call cheese that isn't yours? Nacho cheese!",
+      "Why can't a bicycle stand up by itself? It's two tired.",
+      "I only know 25 letters of the alphabet. I don't know y.",
+      "What did the ocean say to the beach? Nothing, it just waved.",
+      "Why did the math book look sad? It had too many problems.",
+      "What do you call a bear with no teeth? A gummy bear!",
+      "I told my dog a joke about a bone. He thought it was ruff.",
+      "Why do cows wear bells? Because their horns don't work!",
+      "What do you call a sleeping dinosaur? A dino-snore!",
+      "Why did the cookie go to the doctor? It felt crummy.",
+      "What's brown and sticky? A stick!",
+      "Why don't skeletons fight each other? They don't have the guts.",
+      "What did one wall say to the other? I'll meet you at the corner.",
+      "Why did the tomato turn red? It saw the salad dressing!",
+      "How does a penguin build its house? Igloos it together.",
+      "What do you call a pig that does karate? A pork chop!",
+      "Why was the broom late? It over-swept.",
+      "What kind of tree fits in your hand? A palm tree!",
+      "Why did the picture go to jail? It was framed.",
+      "I got a job at the bakery because I kneaded the dough.",
+      "What do you call a dog magician? A labracadabrador!",
+      "Why can't you give Elsa a balloon? Because she will let it go.",
+      "What do you get when you cross a snowman and a vampire? Frostbite!",
+      "Why did the banana go to the doctor? It wasn't peeling well.",
+      "What's a pirate's favorite letter? You'd think it's R, but it's the C!",
+      "How do you make a lemon drop? Let it fall out of the tree!",
+      "Why did the football coach go to the bank? To get his quarter back.",
+      "What did the janitor say when he jumped out of the closet? Supplies!",
+      "Why are ghosts bad at lying? You can see right through them.",
+      "What do you call a fish wearing a bowtie? Sofishticated."
+    ];
+
+    var jokeEl = document.getElementById("joke");
+    var btn = document.getElementById("btn");
+    var last = -1;
+
+    function nextJoke() {
+      var i;
+      do {
+        i = Math.floor(Math.random() * JOKES.length);
+      } while (i === last);
+      last = i;
+      jokeEl.textContent = JOKES[i];
+    }
+
+    btn.addEventListener("click", nextJoke);
+  </script>
+</body>
+</html>
