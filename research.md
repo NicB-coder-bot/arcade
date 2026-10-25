@@ -1,74 +1,67 @@
-# Research: Arcade website with 4 games
+# Three tips to make a tapping game feel fun on a phone
 
-## Goal
-A no-build, no-library website (open `index.html` directly) with a home page of 4 game cards and 4 game pages (Flappy, Snake, Ski, Stack), all sharing one look, all working on laptop and phone.
+> This replaces the older research for the arcade site (still in git history). The existing site code (`index.html`, `js/`, `css/`) has no tapping game and the report doesn't need any code, so nothing there changes.
 
-## What exists today
-- Repo only has `README.md` (one line) and one commit. No code, no tests, no config. Everything is new.
-
-## Key facts (with links)
-- **Opening via `file://` works only if nothing needs a server.** Avoid `fetch()`, ES module `<script type="module">` and `import` (browsers block modules on `file://` because of CORS). Use plain `<script src="...">` tags. Relative links only. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
-- **Canvas 2D** is the right tool for all four games and for the card preview drawings (draw the previews with small canvases or inline SVG, no images). https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API
-- **Game loop:** use `requestAnimationFrame` and a time delta (`dt` in seconds) so speed is the same on 60Hz and 120Hz screens. Clamp `dt` (e.g. max 0.05s) so a tab switch doesn't make things teleport. https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame
-- **Sharp canvas on phones:** size the canvas backing store by `devicePixelRatio` (cap at 2 for speed) and scale the context; keep game logic in a fixed "logical" size. https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio
-- **Touch/mouse in one code path:** use Pointer Events (`pointerdown`, `pointermove`, `pointerup`, `pointercancel`). Set CSS `touch-action: none` on the canvas so the browser doesn't scroll/zoom while playing. https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events and https://developer.mozilla.org/en-US/docs/Web/CSS/touch-action
-- **Sound with no files:** Web Audio API `OscillatorNode` + `GainNode` makes beeps. Browsers keep audio locked until a user gesture, so create/resume the `AudioContext` on the first tap/click/key (the Play button is perfect). https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API and https://developer.mozilla.org/en-US/docs/Web/Media/Autoplay_guide
-- **Saved best score:** `localStorage` (works on `file://` in Chrome/Safari/Firefox, but wrap in try/catch because private mode or blocked storage throws). Note: on `file://` Chrome shares storage per-file-origin, so use unique key names like `arcade.flappy.best`. https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
-- **Pause when tab hidden:** listen to `visibilitychange` and auto-pause. https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilitychange_event
-- **Phone layout:** `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">`, use `100dvh` (not `100vh`, which is wrong behind mobile browser bars), and `env(safe-area-inset-*)` padding. https://developer.mozilla.org/en-US/docs/Web/CSS/length#dynamic_viewport_units
-- **Swipe detection:** record `pointerdown` x/y, on `pointerup` (or when movement passes ~24px) compare `dx` and `dy`; larger axis wins. Works the same for mouse drags.
-- **Reduced motion / accessibility:** respect `prefers-reduced-motion` for page transitions; make buttons real `<button>`/`<a>` with focus outlines and 44px+ touch targets.
+## Short answer
+Pick these three tips: (1) the game must react the instant a finger lands, (2) every tap should give a little "pop" you can see, hear and feel, and (3) make the tap area big and forgiving, ideally the whole screen. Sources agree on the first two ideas fairly well [1][2][3][5]. The third is mostly standard phone-design advice [5][6].
 
 ## Recommended approach
+Build the report as one short page, in this order, using the same shape for each tip: **Title → why (1–2 plain sentences) → "What the player sees/feels" example.**
 
-### File layout (flat and simple)
-```
-index.html            home: 4 cards
-flappy.html  snake.html  ski.html  stack.html
-css/style.css         shared look (cards, buttons, overlays, HUD)
-js/common.js          shared helpers (see below), loaded by every page
-js/flappy.js  js/snake.js  js/ski.js  js/stack.js
-```
-No JS modules; each game page loads `common.js` first, then its own script. Keep one global namespace object (e.g. `window.Arcade`).
+Suggested content (reword freely, keep it short and plain):
 
-### Shared helpers in `common.js` (so all games behave identically)
-- `Arcade.setupCanvas(canvas, logicalW, logicalH)` – resize + DPR + letterbox on window resize/rotate.
-- `Arcade.loop(update, draw)` – rAF loop with clamped `dt`; supports pause/resume.
-- `Arcade.storage.getBest(game)` / `setBest(game, n)` – safe localStorage.
-- `Arcade.sound` – `beep(freq, ms, type)`, `isOn()`, `toggle()`; mute state saved in localStorage (shared across games). Make the mute toggle work even before the audio context exists.
-- `Arcade.ui` – wires the standard overlays/buttons: start screen, game-over screen ("Play again"), pause button + paused overlay, sound toggle, score / best display. Each game just calls `onStart`, `onReset`, and reports `setScore(n)` / `gameOver()`.
-- Keyboard: `P` or `Esc` toggles pause, `Enter`/`Space` starts. Prevent default on arrows and Space so the page doesn't scroll.
+1. **React right away.**
+   - Why: if the game answers late, tapping feels mushy and the player stops trusting it. Fast taps need a fast answer.
+   - Example: you tap, and the number goes up and the button squishes in the same moment. No waiting.
+   - Builder note (keep out of the report or in one tiny line): old phone browsers waited about 0.3 seconds after a tap [3]. Reacting to the finger touching the screen (not to the finger lifting) avoids a laggy feel [5].
+2. **Make every tap pop.**
+   - Why: small, quick reactions (a bounce, a tiny sound, a floating "+1", a short buzz) tell the player "that worked", which feels good again and again [1][2][7].
+   - Example: the button shrinks a little and bounces back, a soft "pop" plays, a "+1" floats up and fades.
+   - Warning to include: keep it small. Too many effects can turn into noise [8].
+3. **Make the tap area huge.**
+   - Why: when you tap fast your finger misses small targets, and a miss feels unfair. If the whole screen counts, every tap lands.
+   - Example: the player taps anywhere, even with a thumb at the edge, and it always scores.
+   - Builder note: stop the page from zooming or scrolling while tapping (see below) [5].
 
-### Shared page markup
-Every game page: header bar (Back to arcade link, game title, score, best, pause button, sound button), a centered `<canvas>`, and overlay `<div>`s for start / paused / game over. Use CSS variables for colors, radius, spacing so the whole site is one theme (dark navy background, bright accent per game, large rounded corners, system font stack, no web fonts to download).
+Format tips for "easy to read on a phone": short title lines, 2–3 short lines per tip, a bold "You'll see/feel:" line, no tables, no code.
 
-### Home page
-CSS grid: 2x2 on laptop, 1 column (or 2 narrow) on phones, `grid-template-columns: repeat(auto-fit, minmax(260px, 1fr))`. Each card: rounded (~24px), a small preview (inline SVG or a tiny canvas drawing each game's look), name, and a "Play" link styled as a button. Optionally show the saved best score on the card (reads localStorage).
+## Tip 1: reacting instantly
+- Phone browsers used to wait about 300–350 ms between the end of a tap and the "click" event, because they were checking for a double-tap zoom. This is now mostly gone for pages with a mobile viewport tag [3]. (Source [3] is from 2013, so it is old; the idea still explains why "react on touch" is the safe habit.)
+- Pointer events cover mouse, pen and touch in one set of events, and `pointerdown` fires when the finger first touches. They have worked in all main browsers since July 2020 [5].
+- If the browser thinks the touch is a scroll or zoom, it cancels the tap. The CSS `touch-action` property controls this [5]. For a tapping game, set `touch-action: none` (or `manipulation`) on the play area so fast taps are not turned into zooms [5][3].
+- Note [3] says `touch-action: manipulation` was not supported in Safari when written (2013); that may have changed, so test on an iPhone.
 
-### Per-game design notes
-- **Flappy:** fixed logical size (e.g. 400x600). Gravity ~1400 px/s², flap sets velocity to about -420 px/s. Pipe speed ~150 px/s, gap ~150-170px, new pipe every ~1.5s; random gap center kept away from edges. Input: Space, click, tap (pointerdown) all call flap. Score +1 when the bird passes a pipe. Use circle-vs-rectangle collision, shrink the hitbox slightly so it feels fair. Cap fall speed.
-- **Snake:** grid (e.g. 20x20 cells). Move on a timer (tick interval starts ~140ms, decreases ~3-4ms per food, floor ~60ms), not every frame. Queue up to 2 direction inputs so quick turns aren't lost, and block 180° reversals. Arrow keys (also WASD) + swipe. Place food only on empty cells. Walls kill (simplest, clear rule); mention choice in UI.
-- **Ski:** vertical scrolling world; skier at fixed y near the top third, obstacles scroll up. Steering left/right changes x velocity smoothly (ease, not instant). Speed starts ~200 px/s and ramps up with time (cap it), spawn rate scales with speed. Obstacles: trees, rocks, other skiers (these move sideways a little). Always leave a passable gap when spawning rows (check there is at least one free lane wider than the skier). Phone control: hold left half = go left, right half = go right (pointer position vs. canvas center; support multi-touch by tracking active pointers). Score = distance. Use forgiving (smaller) hitboxes. Draw all with canvas shapes.
-- **Stack:** blocks slide horizontally; tap/click/Space drops. Overlap = new width; if overlap <= 0 game over; if the drop is within a few px of perfect, snap and keep the width (bonus feel, optional width regrow). Cut-off piece falls away with simple gravity animation. When the tower gets high, scroll the camera down so the top stays visible. Slide speed increases slowly. Score = number of blocks placed. Color shifts per level via HSL hue.
+## Tip 2: make each tap pop ("juice")
+- "Juicy" design means lots of sight and sound feedback for what the player does. Researchers say the idea is popular but loosely defined, so there is no exact recipe [1].
+- A 2021 phone study found that adding extra vibration feedback to what's already on screen made games more enjoyable and made players feel more involved [2]. This was a lab study, not one specific to tapping games.
+- The well-known talk "Juice it or lose it" (Jonasson and Purho, 2012) shows a plain Breakout game becoming fun with wobbling, squashing, bouncing and cute sounds, with the goal of "maximum output for minimum input" [7]. I read a news write-up, not the talk itself. One blog summary adds that particles should be used sparingly [8].
+- Vibration on the web: `navigator.vibrate(ms)` exists but has "limited availability" and does nothing on unsupported devices [4]. It is believed not to work on iPhones (not stated on the MDN page, so check). So make vibration a bonus; the sight and sound must work alone [2][4].
+- Sound on phones only works after the player has touched the screen once (a common browser rule, also in the earlier arcade research). The "Start" tap is a good place to switch sound on.
+- Too much is a real risk: a GDC talk called "Don't Juice It or Lose It" argued polish can hurt immersion [8].
 
-### Build order suggestion
-1. `style.css` + `common.js` + `index.html` (cards with previews).
-2. One game end to end (Flappy) to prove the shared UI/overlays/pause/sound/best-score flow.
-3. Snake, Stack, Ski using the same helpers.
-4. Polish: responsive checks, keyboard focus, reduced motion.
+## Tip 3: big, forgiving tap area
+- Chrome's web.dev advice is about 48 px tap targets with about 8 px of space between them [6]. Apple's 44×44 pt and Material's 48×48 dp (about 9 mm) are the same idea [9]. Those numbers are for buttons; a tapping game can simply use the whole screen.
+- WCAG (web accessibility rules) asks for at least 24×24 CSS pixels, and 44×44 for the stricter level [9].
+- Because quick tapping means many touches, you also want the page to stop pinch-zooming and scrolling on the play area (`touch-action`, see Tip 1) [5].
+- Layout side note for the builder: use a phone viewport tag, `width=device-width` [3]. If score and buttons are shown, keep them out of the tapping zone so a tap doesn't hit them by accident.
 
-## Things to watch out for
-- **No `fetch`, no modules, no external URLs** (fonts, CDNs, images). Everything must work from `file://`.
-- **Pause must truly stop the game:** stop timers and the rAF update; resume must reset the "last frame time" or `dt` will be huge and cause a jump.
-- **Page scrolling on phones:** arrows/Space scroll the page and touches pan/zoom unless prevented. Use `touch-action: none` on the canvas and `preventDefault()` on game keys. Also set `user-select: none` and `-webkit-tap-highlight-color: transparent`.
-- **Double-firing input:** if you listen to both `touchstart` and `click`, one tap flaps twice. Use pointer events only.
-- **Audio:** will be silent until a user gesture; iOS Safari also respects the silent switch for some audio. Don't crash if `AudioContext` is missing (wrap in try/catch). Muted state must persist and be respected from the first sound.
-- **localStorage errors** on blocked storage: always try/catch and fall back to in-memory best score.
-- **Don't let the start tap count as a flap/drop:** the tap that presses "Play" must not also trigger the first action of the game.
-- **Resizing/rotation:** recompute canvas size on `resize` and `orientationchange`; keep logical coordinates fixed so game physics don't change with window size.
-- **Performance on phones:** avoid creating objects every frame, cap DPR at 2, reuse arrays, no heavy shadows/blur.
-- **Fairness:** generous hitboxes, guaranteed gaps (Ski, Flappy), and a short grace moment after "Play" before obstacles reach the player.
-- **Reaching game over twice:** make sure "Play again" fully resets state and does not stack a second rAF loop or duplicate event listeners (the most common bug in this kind of project).
-- **Best score only saved when it is beaten**; show "New best!" on game over.
-- **Consistent look:** keep every color/radius/shadow in CSS variables in the one shared stylesheet; game pages must not add their own styling beyond canvas content.
-- **Testing without a framework:** keep pure logic (collision, overlap cut for Stack, snake step, swipe direction) in small functions so they can be checked quickly in Node or the browser console. For the final check, open each page in a browser at a laptop size and a phone size (devtools device mode) and play each game through start -> game over -> Play again.
+## Ideas left out on purpose (only three tips allowed)
+- Upgrades and milestones (growing score, "x10 streak" messages). Many clicker-game articles suggest this keeps players tapping, but the pages I found were low quality, copied-looking blogs, so I didn't build a tip on them.
+
+## What's uncertain
+- ⚠️ Source [8] and the Apple/Material/WCAG numbers [9] come from search-result summaries only; I did not open them or the official Apple/Google pages. Source [7] doesn't list warnings; the "too much juice" warning comes from [8] only.
+- ⚠️ "Juiciness" has no exact recipe [1]; the sizes and timings for bounces and sounds need playtesting.
+- ⚠️ The vibration study [2] is about phones in general, not quick tapping games. Vibration on iPhone is unconfirmed (not on the MDN page [4]).
+- ⚠️ The 300 ms tap delay article [3] is from 2013 and the delay is mostly gone; Safari details may be out of date.
+- ⚠️ Tip 3 is based on general phone design guidelines [6], not on a study of tapping games. Treat it as common practice, not proven.
+
+## Sources
+1. [Good Game Feel: An Empirically Grounded Framework for Juicy Design](https://dl.digra.org/index.php/dl/article/view/936) — Hicks, Dickinson, Holopainen and Gerling, DiGRA 2018 conference paper. Defines "juicy" design; survey of 17 developers. Read the abstract page.
+2. [Juicy Haptic Design: Vibrotactile Embellishments Can Improve Player Experience in Games](https://uwspace.uwaterloo.ca/items/739bca60-4670-4ea7-bc4d-c1ddd2242b26/full) — Singhal and Schneider, CHI 2021 (University of Waterloo). Two studies on phones. Read the abstract page.
+3. [300ms tap delay, gone away](https://developer.chrome.com/blog/300ms-tap-delay-gone-away) — Jake Archibald, Chrome developers blog, last updated 2013-12-12. Why the delay existed and how the viewport tag removes it.
+4. [Vibration API](https://developer.mozilla.org/en-US/docs/Web/API/Vibration_API) — MDN Web Docs (Mozilla), undated reference page. How `navigator.vibrate()` works; limited support.
+5. [Pointer events](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events) — MDN Web Docs (Mozilla), undated reference page. Pointer events and `touch-action`; widely available since July 2020.
+6. [Accessible tap targets](https://web.dev/articles/accessible-tap-targets) — web.dev (Chrome team and experts), last updated 2020-03-31. Says ~48 px targets with ~8 px spacing.
+7. [Is your game 'juicy' enough?](https://www.gamedeveloper.com/design/video-is-your-game-juicy-enough-) — Game Developer, 2013-08-23, coverage of the GDC Europe talk by Jonasson and Purho. Opened and read.
+8. [Research: Making a 'juicy' game](https://rpgplayground.com/research-making-a-juicy-game/) — rpgplayground.com blog, undated summary of the juice talks, including the "Don't Juice It or Lose It" counterpoint. Seen in search results only; not opened.
+9. [Touch Target Sizes and Mobile Accessibility](https://ezud.com/touch-target-sizes-mobile-accessibility/) — ezud.com blog, undated, summarising Apple 44 pt, Material 48 dp and WCAG 24/44 px. Third-party, seen in search results only; not opened.
