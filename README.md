@@ -28,3 +28,4 @@ a score, a best score saved on your device, and a game-over screen with **Play a
 npm test
 ```
 (needs Node.js; it only runs the rule checks, nothing gets installed)
+Checked by agentbox on a test run.
