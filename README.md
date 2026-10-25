@@ -1,5 +1,7 @@
 # Arcade
 
+Hello! Welcome to the arcade. 👋
+
 Four quick games in plain HTML, CSS and JavaScript. No libraries, no images, no setup:
 just open `index.html` in a browser.
 
