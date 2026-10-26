@@ -18,6 +18,7 @@
   --snake: #3ddc84;
   --ski: #4cc9f0;
   --stack: #ff6b9d;
+  --stars: #ffd23f;
 
   --radius-lg: 28px;
   --radius: 18px;
@@ -30,6 +31,7 @@
 body.game-flappy { --accent: var(--flappy); --accent-text: #2a2100; }
 body.game-snake  { --accent: var(--snake);  --accent-text: #00250f; }
 body.game-ski    { --accent: var(--ski);    --accent-text: #00202b; }
+body.game-stars  { --accent: var(--stars);  --accent-text: #2a2100; }
 body.game-stack  { --accent: var(--stack);  --accent-text: #2e0012; }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -159,6 +161,7 @@ a { color: inherit; }
 .card-flappy { --card-accent: var(--flappy); --accent-text: #2a2100; }
 .card-snake  { --card-accent: var(--snake);  --accent-text: #00250f; }
 .card-ski    { --card-accent: var(--ski);    --accent-text: #00202b; }
+.card-stars  { --card-accent: var(--stars);  --accent-text: #2a2100; }
 .card-stack  { --card-accent: var(--stack);  --accent-text: #2e0012; }
 
 .preview {

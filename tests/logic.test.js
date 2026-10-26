@@ -6,6 +6,7 @@ var flappy = require('../js/flappy.js');
 var snake = require('../js/snake.js');
 var ski = require('../js/ski.js');
 var stack = require('../js/stack.js');
+var stars = require('../js/stars.js');
 
 var passed = 0;
 function test(name, fn) {
@@ -108,6 +109,19 @@ test('stack snaps a nearly perfect drop', function () {
 test('stack misses when nothing overlaps', function () {
   assert.ok(stack.drop({ x: 100, w: 50 }, { x: 150, w: 50 }).miss);
   assert.ok(stack.drop({ x: 100, w: 50 }, { x: 0, w: 60 }).miss);
+});
+
+// Catch Stars
+test('stars fall faster over time but never past the limit', function () {
+  assert.ok(stars.fallSpeed(30) > stars.fallSpeed(0));
+  assert.strictEqual(stars.fallSpeed(10000), 420);
+});
+test('stars: catching and missing', function () {
+  assert.ok(stars.caught({ x: 100, y: 500, r: 15 }, 110, 490, 84));
+  assert.ok(!stars.caught({ x: 300, y: 500, r: 15 }, 110, 490, 84));
+  assert.ok(!stars.caught({ x: 100, y: 200, r: 15 }, 100, 490, 84));
+  assert.ok(stars.missed({ x: 100, y: 600, r: 15 }, 560));
+  assert.ok(!stars.missed({ x: 100, y: 500, r: 15 }, 560));
 });
 
 console.log('\n' + passed + ' checks passed');
