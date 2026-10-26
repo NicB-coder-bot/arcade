@@ -36,7 +36,7 @@
   if (typeof module === 'object' && module.exports) { module.exports = logic; return; }
 
   // ---------- Game state ----------
-  var basketX, stars, spawnTimer, lives, left, right, target, sparks, bg = [];
+  var basketX, stars, spawnTimer, lives, left, right, target, sparks, sky, bg = [];
   var livesEl = document.getElementById('lives');
 
   function setLives(n) {
@@ -125,10 +125,13 @@
   }
 
   function draw(ctx) {
-    var g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#120c3a');
-    g.addColorStop(1, '#3a1d6e');
-    ctx.fillStyle = g;
+    // The sky is made once and reused (gradients stay valid when the screen is resized)
+    if (!sky) {
+      sky = ctx.createLinearGradient(0, 0, 0, H);
+      sky.addColorStop(0, '#120c3a');
+      sky.addColorStop(1, '#3a1d6e');
+    }
+    ctx.fillStyle = sky;
     ctx.fillRect(0, 0, W, H);
 
     ctx.fillStyle = 'rgba(255,255,255,0.55)';
