@@ -74,6 +74,20 @@
   var pattern = logic.readPattern(load(SAVE_KEY)) || logic.starterPattern();
   var bpm = logic.clampBpm(load(TEMPO_KEY) || logic.DEFAULT_BPM);
 
+  // ---------- Page parts and loop state ----------
+  var padGrid = document.getElementById('pads');
+  var seqGrid = document.getElementById('sequencer');
+  var playBtn = document.getElementById('play');
+  var tempo = document.getElementById('tempo');
+  var tempoOut = document.getElementById('tempo-value');
+  var clearBtn = document.getElementById('clear');
+  var undoBar = document.getElementById('undo-bar');
+  var undoBtn = document.getElementById('undo');
+  var padEls = [];
+  var stepEls = [];
+  var playing = false, timer = null, nextStep = 0, nextTime = 0;
+  var shown = []; // { step, time } waiting to be lit up on screen
+
   // ---------- Sounds ----------
   var ctx = null, master = null, noise = null;
 
@@ -143,12 +157,13 @@
   }
 
   // ---------- Pads ----------
-  var padEls = [];
-  var padGrid = document.getElementById('pads');
-
   function flash(el) {
-    el.classList.remove('hit');
-    void el.offsetWidth; // restart the glow animation
+    // Only force a restart when the pad is still glowing from the last hit,
+    // so a playing loop doesn't make the browser redo the layout on every step.
+    if (el.classList.contains('hit')) {
+      el.classList.remove('hit');
+      void el.offsetWidth;
+    }
     el.classList.add('hit');
   }
   function hitPad(track) {
@@ -171,13 +186,12 @@
     // Keyboard Enter on a focused pad (mouse and touch already played on pointerdown)
     b.addEventListener('click', function (e) { if (e.detail === 0) hitPad(i); });
     b.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    b.addEventListener('animationend', function () { b.classList.remove('hit'); });
     padGrid.appendChild(b);
     padEls.push(b);
   });
 
   // ---------- 16-step loop grid ----------
-  var stepEls = [];
-  var seqGrid = document.getElementById('sequencer');
 
   logic.TRACKS.forEach(function (tr, t) {
     var row = document.createElement('div');
@@ -203,12 +217,13 @@
     seqGrid.appendChild(row);
   });
 
+  function drawStep(t, s) {
+    stepEls[t][s].classList.toggle('on', pattern[t][s]);
+    stepEls[t][s].setAttribute('aria-pressed', pattern[t][s] ? 'true' : 'false');
+  }
   function drawPattern() {
     for (var t = 0; t < stepEls.length; t++) {
-      for (var s = 0; s < logic.STEPS; s++) {
-        stepEls[t][s].classList.toggle('on', pattern[t][s]);
-        stepEls[t][s].setAttribute('aria-pressed', pattern[t][s] ? 'true' : 'false');
-      }
+      for (var s = 0; s < logic.STEPS; s++) drawStep(t, s);
     }
     clearBtn.disabled = logic.isEmpty(pattern);
   }
@@ -222,15 +237,13 @@
     // Let you hear the sound you just switched on (unless the loop is playing it anyway)
     if (pattern[t][s] && !playing) playDrum(t);
     hideUndo();
-    drawPattern();
+    drawStep(t, s);
+    clearBtn.disabled = logic.isEmpty(pattern);
     savePattern();
   });
 
   // ---------- Playing the loop ----------
   // A small "look ahead" timer schedules sounds slightly early so the beat stays steady.
-  var playing = false, timer = null, nextStep = 0, nextTime = 0;
-  var shown = []; // { step, time } waiting to be lit up on screen
-  var playBtn = document.getElementById('play');
 
   function schedule() {
     while (nextTime < ctx.currentTime + 0.12) {
@@ -290,8 +303,6 @@
   document.addEventListener('visibilitychange', function () { if (document.hidden) stop(); });
 
   // ---------- Tempo ----------
-  var tempo = document.getElementById('tempo');
-  var tempoOut = document.getElementById('tempo-value');
   tempo.min = logic.MIN_BPM;
   tempo.max = logic.MAX_BPM;
   tempo.value = bpm;
@@ -299,13 +310,11 @@
   tempo.addEventListener('input', function () {
     bpm = logic.clampBpm(tempo.value);
     tempoOut.textContent = bpm;
-    save(TEMPO_KEY, String(bpm));
   });
+  // Save once the slider is let go, not on every tiny move while dragging
+  tempo.addEventListener('change', function () { save(TEMPO_KEY, String(bpm)); });
 
   // ---------- Clear (with a short chance to undo) ----------
-  var clearBtn = document.getElementById('clear');
-  var undoBar = document.getElementById('undo-bar');
-  var undoBtn = document.getElementById('undo');
   var saved = null, undoTimer = null;
 
   function hideUndo() {

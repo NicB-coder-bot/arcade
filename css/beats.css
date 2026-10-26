@@ -97,14 +97,13 @@ kbd {
   border: 1px solid var(--line);
   white-space: nowrap;
 }
-.back:hover { color: var(--text); }
 
 .hint { color: var(--muted); font-size: 15px; margin: 12px 0; }
 
 /* ---------- Pads ---------- */
 .pads {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(10px, 2.5vw, 18px);
   user-select: none;
   -webkit-user-select: none;
@@ -112,6 +111,7 @@ kbd {
 .pad {
   aspect-ratio: 1 / 1;
   min-height: 72px;
+  padding: 4px;
   border: 2px solid var(--c);
   border-radius: var(--radius);
   background: color-mix(in srgb, var(--c) 14%, var(--panel));
@@ -154,9 +154,7 @@ kbd {
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: rgba(18, 18, 30, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(18, 18, 30, 0.96);
   border: 1px solid var(--line);
   border-radius: var(--radius);
 }
@@ -188,7 +186,6 @@ kbd {
 .play.playing { background: var(--kick); color: #200010; box-shadow: 0 0 18px color-mix(in srgb, var(--kick) 50%, transparent); }
 .play.playing .icon { width: 14px; height: 14px; border: 0; background: currentColor; border-radius: 2px; }
 .clear { background: transparent; border-color: var(--line); color: var(--text); }
-.clear:hover { border-color: var(--muted); }
 .clear:disabled { opacity: 0.4; cursor: default; }
 
 .tempo {
@@ -246,7 +243,7 @@ kbd {
 }
 .steps {
   display: grid;
-  grid-template-columns: repeat(16, 1fr);
+  grid-template-columns: repeat(16, minmax(0, 1fr));
   gap: 5px;
 }
 .step {
@@ -259,7 +256,6 @@ kbd {
   touch-action: manipulation;
 }
 .step.alt { background: var(--cell-alt); }
-.step:hover { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 50%, transparent); }
 .step.on {
   background: var(--c);
   box-shadow: 0 0 12px color-mix(in srgb, var(--c) 70%, transparent);
@@ -273,13 +269,21 @@ kbd {
 @media (max-width: 640px) {
   .track { grid-template-columns: 58px 1fr; gap: 8px; }
   .track-name { font-size: 13px; }
-  .steps { grid-template-columns: repeat(8, 1fr); gap: 4px; }
-  .step { min-height: 34px; }
+  .steps { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; }
+  /* A fixed height (not square) lets the squares narrow on small phones instead of spilling off the side */
+  .step { aspect-ratio: auto; min-height: 0; height: 34px; }
   .pad { aspect-ratio: 4 / 5; }
   .sequencer { gap: 12px; }
   .controls { gap: 10px; padding: 10px; }
   .ctrl { padding: 0 14px; font-size: 16px; }
   .play { min-width: 92px; }
+}
+
+/* Hover outlines only where there is a mouse, so they don't stick after a tap */
+@media (hover: hover) {
+  .back:hover { color: var(--text); }
+  .clear:not(:disabled):hover { border-color: var(--muted); }
+  .step:hover { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 50%, transparent); }
 }
 
 /* Touch screens have no number keys, so hide the keyboard tips */
