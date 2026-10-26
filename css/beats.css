@@ -38,15 +38,24 @@ html, body { margin: 0; padding: 0; }
 body {
   font-family: var(--font);
   color: var(--text);
-  background:
-    radial-gradient(900px 500px at 0% -10%, rgba(255, 46, 136, 0.16), transparent 60%),
-    radial-gradient(900px 500px at 100% 0%, rgba(0, 229, 255, 0.12), transparent 60%),
-    var(--bg);
-  background-attachment: fixed;
+  background: var(--bg);
   min-height: 100vh;
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* The neon glow sits on its own fixed layer, so scrolling doesn't repaint it
+   (smoother than background-attachment: fixed, which phones also ignore) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 500px at 0% -10%, rgba(255, 46, 136, 0.16), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(0, 229, 255, 0.12), transparent 60%);
 }
 
 :focus-visible { outline: 3px solid #fff; outline-offset: 3px; }

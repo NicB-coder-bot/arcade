@@ -192,7 +192,6 @@
   });
 
   // ---------- 16-step loop grid ----------
-
   logic.TRACKS.forEach(function (tr, t) {
     var row = document.createElement('div');
     row.className = 'track track-' + tr.id;
@@ -244,7 +243,6 @@
 
   // ---------- Playing the loop ----------
   // A small "look ahead" timer schedules sounds slightly early so the beat stays steady.
-
   function schedule() {
     while (nextTime < ctx.currentTime + 0.12) {
       for (var t = 0; t < pattern.length; t++) {
