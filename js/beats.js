@@ -347,6 +347,11 @@
     var n = parseInt(e.key, 10);
     if (n >= 1 && n <= 8 && !e.repeat) hitPad(n - 1);
   });
+  // Some browsers press a focused button when Space is let go, which would
+  // undo the Play / Stop above or flip a square, so Space only ever plays / stops.
+  document.addEventListener('keyup', function (e) {
+    if (e.key === ' ' && !(e.ctrlKey || e.metaKey || e.altKey)) e.preventDefault();
+  });
 
   drawPattern();
 })();
