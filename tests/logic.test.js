@@ -6,6 +6,7 @@ var flappy = require('../js/flappy.js');
 var snake = require('../js/snake.js');
 var ski = require('../js/ski.js');
 var stack = require('../js/stack.js');
+var memory = require('../js/memory.js');
 
 var passed = 0;
 function test(name, fn) {
@@ -108,6 +109,45 @@ test('stack snaps a nearly perfect drop', function () {
 test('stack misses when nothing overlaps', function () {
   assert.ok(stack.drop({ x: 100, w: 50 }, { x: 150, w: 50 }).miss);
   assert.ok(stack.drop({ x: 100, w: 50 }, { x: 0, w: 60 }).miss);
+});
+
+
+// Memory
+function seqRng() { var n = 0; return function () { n = (n * 7 + 3) % 10; return n / 10; }; }
+test('memory deck has 8 pairs, all face down', function () {
+  var g = memory.newGame(seqRng());
+  assert.strictEqual(g.cards.length, 16);
+  memory.SYMBOLS.forEach(function (s) {
+    assert.strictEqual(g.cards.filter(function (c) { return c.symbol === s; }).length, 2);
+  });
+  assert.ok(g.cards.every(function (c) { return !c.faceUp && !c.matched; }));
+});
+test('memory: a match adds points, a miss does not', function () {
+  var g = memory.newGame();
+  var a = 0, b = g.cards.findIndex(function (c, i) { return i > 0 && c.symbol === g.cards[0].symbol; });
+  var other = g.cards.findIndex(function (c) { return c.symbol !== g.cards[0].symbol; });
+  assert.strictEqual(memory.flip(g, a), 'first');
+  assert.strictEqual(memory.flip(g, other), 'miss');
+  assert.strictEqual(g.score, 0);
+  assert.strictEqual(memory.flip(g, b), 'ignored'); // locked until the wrong pair is hidden
+  memory.hideMiss(g);
+  assert.ok(!g.cards[a].faceUp && !g.cards[other].faceUp);
+  memory.flip(g, a);
+  assert.strictEqual(memory.flip(g, b), 'match');
+  assert.strictEqual(g.score, memory.POINTS_PER_MATCH);
+  assert.strictEqual(g.moves, 2);
+});
+test('memory: matching every pair wins with the full score', function () {
+  var g = memory.newGame();
+  memory.SYMBOLS.forEach(function (s) {
+    var idx = [];
+    g.cards.forEach(function (c, i) { if (c.symbol === s) idx.push(i); });
+    memory.flip(g, idx[0]);
+    memory.flip(g, idx[1]);
+  });
+  assert.ok(g.won);
+  assert.strictEqual(g.score, 8 * memory.POINTS_PER_MATCH);
+  assert.strictEqual(memory.flip(g, 0), 'ignored');
 });
 
 console.log('\n' + passed + ' checks passed');

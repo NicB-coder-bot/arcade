@@ -11,7 +11,7 @@
   <main class="home">
     <header class="home-header">
       <h1 class="logo">Arcade</h1>
-      <p class="tagline">Four quick games. Pick one and beat your best.</p>
+      <p class="tagline">Five quick games. Pick one and beat your best.</p>
     </header>
 
     <section class="cards" aria-label="Games">
@@ -137,6 +137,32 @@
         </div>
       </article>
 
+      <!-- Memory -->
+      <article class="card card-memory">
+        <div class="preview" aria-hidden="true">
+          <svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice">
+            <rect width="320" height="180" fill="#2a1d3d"/>
+            <g font-size="38" text-anchor="middle" font-weight="900" font-family="system-ui, sans-serif">
+              <rect x="40" y="30" width="60" height="60" rx="10" fill="#ff9f43"/><text x="70" y="72" fill="#fff" opacity=".85">?</text>
+              <rect x="110" y="30" width="60" height="60" rx="10" fill="#242a57" stroke="#3ddc84" stroke-width="3"/><text x="140" y="72">🚀</text>
+              <rect x="180" y="30" width="60" height="60" rx="10" fill="#ff9f43"/><text x="210" y="72" fill="#fff" opacity=".85">?</text>
+              <rect x="250" y="30" width="60" height="60" rx="10" fill="#ff9f43"/><text x="280" y="72" fill="#fff" opacity=".85">?</text>
+              <rect x="40" y="100" width="60" height="60" rx="10" fill="#ff9f43"/><text x="70" y="142" fill="#fff" opacity=".85">?</text>
+              <rect x="110" y="100" width="60" height="60" rx="10" fill="#ff9f43"/><text x="140" y="142" fill="#fff" opacity=".85">?</text>
+              <rect x="180" y="100" width="60" height="60" rx="10" fill="#242a57" stroke="#3ddc84" stroke-width="3"/><text x="210" y="142">🚀</text>
+            </g>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="card-text">
+            <h2>Memory</h2>
+            <p>Flip cards and match all the pairs.</p>
+            <div class="card-best" data-best="memory" data-label="Fewest moves"></div>
+          </div>
+          <a class="btn play" href="memory.html">Play</a>
+        </div>
+      </article>
+
     </section>
 
     <footer class="home-footer">Works with a keyboard, a mouse or a finger. Your best scores are saved on this device.</footer>
@@ -147,7 +173,7 @@
     document.querySelectorAll('[data-best]').forEach(function (el) {
       var best = 0;
       try { best = parseInt(localStorage.getItem('arcade.' + el.dataset.best + '.best') || '0', 10) || 0; } catch (e) {}
-      el.textContent = best > 0 ? 'Your best: ' + best : '';
+      el.textContent = best > 0 ? (el.dataset.label ? el.dataset.label + ': ' : 'Your best: ') + best : '';
     });
   </script>
 </body>

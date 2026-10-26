@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0e1124">
+  <title>Memory · Arcade</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="game-page game-memory">
+  <header class="topbar">
+    <a class="btn btn-ghost btn-small" href="index.html" aria-label="Back to arcade">&larr; <span class="back-label">Back</span></a>
+    <h1>Memory</h1>
+    <div class="spacer"></div>
+    <div class="stats">
+      <div class="stat"><span>Score</span><b id="score">0</b></div>
+      <div class="stat"><span>Moves</span><b id="moves">0</b></div>
+      <div class="stat"><span>Best</span><b id="best">-</b></div>
+    </div>
+    <button class="btn btn-ghost btn-small" id="restartBtn" type="button">Restart</button>
+  </header>
+
+  <main class="memory-stage">
+    <p class="memory-hint">Tap two cards. Find all 8 matching pairs!</p>
+    <div class="board" id="board" aria-label="Memory cards"></div>
+
+    <div class="overlay" id="winScreen" hidden>
+      <h2>You did it!</h2>
+      <div class="score-label">Score</div>
+      <div class="big-score" id="finalScore">0</div>
+      <div class="badge" id="newBest" hidden>New best!</div>
+      <p class="how" id="finalMoves"></p>
+      <div class="overlay-buttons">
+        <button class="btn" id="againBtn" type="button">Play again</button>
+        <a class="btn btn-ghost" href="index.html">Back to arcade</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/memory.js"></script>
+</body>
+</html>
