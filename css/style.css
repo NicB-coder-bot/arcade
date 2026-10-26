@@ -189,6 +189,7 @@ a { color: inherit; }
   border-radius: var(--radius-lg);
 }
 
+.home-extra { margin-top: 34px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; color: var(--muted); }
 .home-footer { margin-top: 34px; text-align: center; color: var(--muted); font-size: 14px; }
 
 /* ---------- Game pages ---------- */

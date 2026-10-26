@@ -1,0 +1,292 @@
+/* ==========================================================
+   Beat Maker: dark background, neon pads.
+   Each drum's color lives in one variable below.
+   ========================================================== */
+:root {
+  --bg: #07070d;
+  --panel: #12121e;
+  --cell: #1d1d2e;
+  --cell-alt: #262639;
+  --line: rgba(255, 255, 255, 0.08);
+  --text: #f4f4ff;
+  --muted: #9a9ab8;
+  --radius: 18px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --kick: #ff2e88;
+  --snare: #00e5ff;
+  --hihat: #faff00;
+  --clap: #ff8a00;
+  --tom: #39ff14;
+  --cymbal: #b26bff;
+  --cowbell: #ff4d4d;
+  --shaker: #00ffb3;
+}
+
+.pad-kick,    .track-kick    { --c: var(--kick); }
+.pad-snare,   .track-snare   { --c: var(--snare); }
+.pad-hihat,   .track-hihat   { --c: var(--hihat); }
+.pad-clap,    .track-clap    { --c: var(--clap); }
+.pad-tom,     .track-tom     { --c: var(--tom); }
+.pad-cymbal,  .track-cymbal  { --c: var(--cymbal); }
+.pad-cowbell, .track-cowbell { --c: var(--cowbell); }
+.pad-shaker,  .track-shaker  { --c: var(--shaker); }
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  color: var(--text);
+  background:
+    radial-gradient(900px 500px at 0% -10%, rgba(255, 46, 136, 0.16), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(0, 229, 255, 0.12), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  min-height: 100vh;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+button { font: inherit; color: inherit; cursor: pointer; }
+
+kbd {
+  font: inherit;
+  font-size: 0.85em;
+  padding: 1px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--cell);
+}
+
+.beats {
+  max-width: 960px;
+  margin: 0 auto;
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(24px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+}
+
+/* ---------- Header ---------- */
+.top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.top h1 {
+  margin: 0;
+  font-size: clamp(26px, 6vw, 40px);
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, var(--kick), var(--cymbal), var(--snare));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.back {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}
+.back:hover { color: var(--text); }
+
+.hint { color: var(--muted); font-size: 15px; margin: 12px 0; }
+
+/* ---------- Pads ---------- */
+.pads {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(10px, 2.5vw, 18px);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pad {
+  aspect-ratio: 1 / 1;
+  min-height: 72px;
+  border: 2px solid var(--c);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--c) 14%, var(--panel));
+  box-shadow: 0 0 16px color-mix(in srgb, var(--c) 30%, transparent), inset 0 0 22px color-mix(in srgb, var(--c) 18%, transparent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  transition: transform 0.08s;
+}
+.pad:active { transform: scale(0.96); }
+.pad-name {
+  font-weight: 800;
+  font-size: clamp(14px, 3.6vw, 22px);
+  color: var(--c);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--c) 60%, transparent);
+}
+.pad-key { font-size: 13px; color: var(--muted); }
+.pad.hit { animation: glow 0.25s ease-out; }
+@keyframes glow {
+  0% {
+    background: var(--c);
+    box-shadow: 0 0 40px var(--c), 0 0 80px color-mix(in srgb, var(--c) 50%, transparent);
+  }
+}
+.pad.hit .pad-name { animation: glow-text 0.25s ease-out; }
+@keyframes glow-text { 0% { color: #07070d; text-shadow: none; } }
+
+/* ---------- Controls ---------- */
+.loop { margin-top: 28px; }
+
+.controls {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(18, 18, 30, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.ctrl {
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 17px;
+  border: 2px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.play {
+  background: var(--tom);
+  color: #031600;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--tom) 50%, transparent);
+  min-width: 112px;
+  justify-content: center;
+}
+.play .icon {
+  width: 0; height: 0;
+  border-left: 14px solid currentColor;
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+}
+.play.playing { background: var(--kick); color: #200010; box-shadow: 0 0 18px color-mix(in srgb, var(--kick) 50%, transparent); }
+.play.playing .icon { width: 14px; height: 14px; border: 0; background: currentColor; border-radius: 2px; }
+.clear { background: transparent; border-color: var(--line); color: var(--text); }
+.clear:hover { border-color: var(--muted); }
+.clear:disabled { opacity: 0.4; cursor: default; }
+
+.tempo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.tempo-text { font-size: 14px; color: var(--muted); }
+.tempo-text b { color: var(--text); font-size: 17px; font-variant-numeric: tabular-nums; }
+.tempo input {
+  width: 100%;
+  height: 32px;
+  margin: 0;
+  accent-color: var(--snare);
+}
+
+.undo-bar {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--cell);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.undo-bar[hidden] { display: none; }
+.undo-bar button {
+  background: none;
+  border: 0;
+  color: var(--snare);
+  font-weight: 800;
+  min-height: 40px;
+  padding: 0 8px;
+}
+
+/* ---------- Step grid ---------- */
+.sequencer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.track {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+.track-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--c);
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 5px;
+}
+.step {
+  aspect-ratio: 1 / 1;
+  min-height: 28px;
+  border: 0;
+  padding: 0;
+  border-radius: 8px;
+  background: var(--cell);
+  touch-action: manipulation;
+}
+.step.alt { background: var(--cell-alt); }
+.step:hover { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 50%, transparent); }
+.step.on {
+  background: var(--c);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--c) 70%, transparent);
+}
+.step.now { outline: 2px solid rgba(255, 255, 255, 0.85); outline-offset: -2px; }
+.step.now:not(.on) { background: #3a3a55; }
+
+.foot { margin-top: 28px; color: var(--muted); font-size: 14px; text-align: center; }
+
+/* ---------- Phones: steps wrap into two rows of 8 ---------- */
+@media (max-width: 640px) {
+  .track { grid-template-columns: 58px 1fr; gap: 8px; }
+  .track-name { font-size: 13px; }
+  .steps { grid-template-columns: repeat(8, 1fr); gap: 4px; }
+  .step { min-height: 34px; }
+  .pad { aspect-ratio: 4 / 5; }
+  .sequencer { gap: 12px; }
+  .controls { gap: 10px; padding: 10px; }
+  .ctrl { padding: 0 14px; font-size: 16px; }
+  .play { min-width: 92px; }
+}
+
+/* Touch screens have no number keys, so hide the keyboard tips */
+@media (hover: none) and (pointer: coarse) {
+  .keys, .pad-key { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pad.hit, .pad.hit .pad-name { animation-duration: 0.01s; }
+}

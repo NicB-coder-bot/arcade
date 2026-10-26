@@ -6,6 +6,7 @@ var flappy = require('../js/flappy.js');
 var snake = require('../js/snake.js');
 var ski = require('../js/ski.js');
 var stack = require('../js/stack.js');
+var beats = require('../js/beats.js');
 
 var passed = 0;
 function test(name, fn) {
@@ -108,6 +109,29 @@ test('stack snaps a nearly perfect drop', function () {
 test('stack misses when nothing overlaps', function () {
   assert.ok(stack.drop({ x: 100, w: 50 }, { x: 150, w: 50 }).miss);
   assert.ok(stack.drop({ x: 100, w: 50 }, { x: 0, w: 60 }).miss);
+});
+
+// Beat Maker
+test('beats has 8 drums and 16 steps', function () {
+  assert.strictEqual(beats.TRACKS.length, 8);
+  var p = beats.emptyPattern();
+  assert.strictEqual(p.length, 8);
+  p.forEach(function (row) { assert.strictEqual(row.length, 16); });
+  assert.ok(beats.isEmpty(p));
+  assert.ok(!beats.isEmpty(beats.starterPattern()));
+});
+test('beats tempo stays in range and sets step length', function () {
+  assert.strictEqual(beats.clampBpm(10), beats.MIN_BPM);
+  assert.strictEqual(beats.clampBpm(999), beats.MAX_BPM);
+  assert.strictEqual(beats.clampBpm('abc'), beats.DEFAULT_BPM);
+  assert.strictEqual(beats.stepSeconds(120), 0.125);
+});
+test('beats only loads a saved beat that makes sense', function () {
+  var p = beats.starterPattern();
+  assert.deepStrictEqual(beats.readPattern(JSON.stringify(p)), p);
+  assert.strictEqual(beats.readPattern('not json'), null);
+  assert.strictEqual(beats.readPattern(null), null);
+  assert.strictEqual(beats.readPattern('[[true]]'), null);
 });
 
 console.log('\n' + passed + ' checks passed');
