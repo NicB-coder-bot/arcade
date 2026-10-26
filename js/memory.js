@@ -68,7 +68,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var boardEl = $('board'), scoreEl = $('score'), movesEl = $('moves'), bestEl = $('best');
   var winEl = $('winScreen');
-  var game, buttons = [], timer = null, best = 0;
+  var game, buttons = [], missTimer = null, winTimer = null, best = 0;
 
   function readBest() {
     try { best = parseInt(window.localStorage.getItem(BEST_KEY) || '0', 10) || 0; } catch (e) { best = 0; }
@@ -85,7 +85,7 @@
       b.className = 'tile';
       b.innerHTML = '<span class="tile-inner"><span class="tile-face tile-back">?</span>' +
         '<span class="tile-face tile-front">' + card.symbol + '</span></span>';
-      b.addEventListener('click', function () { onTap(i); });
+      b.dataset.index = i;
       boardEl.appendChild(b);
       return b;
     });
@@ -108,7 +108,7 @@
     var result = logic.flip(game, i);
     if (result === 'ignored') return;
     if (result === 'miss') {
-      timer = setTimeout(function () { timer = null; logic.hideMiss(game); render(); }, 900);
+      missTimer = setTimeout(function () { missTimer = null; logic.hideMiss(game); render(); }, 900);
     } else if (result === 'match' && game.won) {
       win();
     }
@@ -122,15 +122,24 @@
     $('finalScore').textContent = game.score;
     $('finalMoves').textContent = 'You finished in ' + game.moves + ' moves';
     $('newBest').hidden = !isNewBest;
-    setTimeout(function () { winEl.hidden = false; $('againBtn').focus({ preventScroll: true }); }, 700);
+    winTimer = setTimeout(function () { winEl.hidden = false; $('againBtn').focus({ preventScroll: true }); }, 700);
   }
 
   function startGame() {
-    if (timer) { clearTimeout(timer); timer = null; }
+    // A restart must cancel anything still waiting to happen from the last round
+    clearTimeout(missTimer);
+    clearTimeout(winTimer);
+    missTimer = winTimer = null;
     winEl.hidden = true;
     game = logic.newGame();
     build();
   }
+
+  // One listener for the whole board instead of one per card
+  boardEl.addEventListener('click', function (e) {
+    var tile = e.target.closest('.tile');
+    if (tile) onTap(Number(tile.dataset.index));
+  });
 
   readBest();
   $('againBtn').addEventListener('click', startGame);
