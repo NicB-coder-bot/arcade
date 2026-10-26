@@ -30,3 +30,5 @@ npm test
 (needs Node.js; it only runs the rule checks, nothing gets installed)
 
 Made with agentbox by Sam
+
+Sam was here.
