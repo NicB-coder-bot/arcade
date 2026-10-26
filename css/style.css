@@ -317,7 +317,7 @@ body.game-page {
   .topbar { gap: 6px; }
   .stage { padding: 4px 8px max(8px, env(safe-area-inset-bottom)); place-items: start center; }
 }
-@media (max-width: 370px) {
+@media (max-width: 430px) {
   .back-label { display: none; }
 }
 
